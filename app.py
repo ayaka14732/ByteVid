@@ -6,6 +6,7 @@ import youtube_dl
 import re
 import os
 import sqlite3
+import traceback
 from uuid import uuid4
 from glob import glob
 
@@ -17,9 +18,6 @@ from lib.keyphrase_extraction import extract_keyphrase
 from lib.summarisation import summarise
 from lib.keyframe_determination import determine_keyframes
 from lib.slides_detection import extract_slides
-
-import traceback
-import sys
 
 VIDEO_FOLDER = 'workdir'
 ALLOWED_EXTENSIONS = {'mp4', 'mp3', 'mkv'}
@@ -40,6 +38,7 @@ conn.executescript("""
                 uuid TEXT PRIMARY KEY,
                 transcript TEXT,
                 translated TEXT,
+                error_message TEXT,
                 status INTEGER
             );
 
@@ -112,11 +111,10 @@ def video():
         url = request.form.get("url")
         video_language = request.form.get("videoLanguage")
         translate_language = request.form.get("translateLanguage")
-        server = request.form.get("server")
 
-        print(video_type, video_language, translate_language, server)
+        print(video_type, video_language, translate_language)
 
-        if not video_type or not video_language or not translate_language or not server:
+        if not video_type or not video_language or not translate_language:
             return "Incomplete form!", 400
 
         curr_uuid = str(uuid4())
@@ -254,6 +252,8 @@ def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
         conn.commit()
         print("Translation complete")
     except Exception as e:
-        print(e)
+        cur.execute("UPDATE results set status = ?, error_message = ? WHERE uuid = ?", (500, repr(e), uuid))
+        conn.commit()
         print(traceback.format_exc())
-        print(sys.exc_info()[2])
+
+    print("All processing done")
