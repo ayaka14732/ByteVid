@@ -74,11 +74,12 @@ def result(uuid):
     if not res:
         return jsonify({"status": -1})
 
-    _, transcript, translated, status = res
+    _, transcript, translated, error_message, status = res
 
     result["transcript"] = transcript
     result["translated"] = translated
     result["status"] = status
+    result["error_message"] = error_message
 
     # get summaries
     res = cur.execute("SELECT * from summaries WHERE uuid = ?",
@@ -179,25 +180,24 @@ def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
     cur.execute("INSERT INTO results (uuid, status) VALUES (?, ?)", (uuid, 0))
     conn.commit()
 
-    # download video
-    if (video_type == 'youtube'):
-        download_youtube_video(url, uuid)
-
-    work_dir = os.path.join(app.config['work_dir'], uuid)
-    if not os.path.exists(work_dir):
-        print(f"Folder {uuid} not found!")
-        raise OSError(f"Folder {uuid} not found!")
-
-    filename_preprocessed = speedup_1_6x(work_dir)
-
-    cur.execute("UPDATE results set status = ? WHERE uuid = ?", (1, uuid))
-    conn.commit()
-    print("Video loaded")
-
     try:
+        # download video
+        if video_type == 'youtube':
+            download_youtube_video(url, uuid)
+
+        work_dir = os.path.join(app.config['work_dir'], uuid)
+        if not os.path.exists(work_dir):
+            print(f"Folder {uuid} not found!")
+            raise OSError(f"Folder {uuid} not found!")
+
+        filename_preprocessed = speedup_1_6x(work_dir)
+
+        cur.execute("UPDATE results set status = ? WHERE uuid = ?", (1, uuid))
+        conn.commit()
+        print("Video loaded")
+
         # transcribe video
         transcribe(work_dir, filename_preprocessed, language=language_src)
-        print(1)
         article = transcript_to_article(work_dir)
 
         with open(glob(os.path.join(work_dir, '*.srt'))[0],
@@ -252,8 +252,8 @@ def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
         conn.commit()
         print("Translation complete")
     except Exception as e:
+        print(traceback.format_exc())
         cur.execute("UPDATE results set status = ?, error_message = ? WHERE uuid = ?", (500, repr(e), uuid))
         conn.commit()
-        print(traceback.format_exc())
 
     print("All processing done")
