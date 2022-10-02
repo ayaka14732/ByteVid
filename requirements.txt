@@ -1,5 +1,8 @@
 git+https://github.com/openai/whisper.git
 git+https://github.com/ztjhz/yolov7-slides-extraction.git
+youtube-dl
 blingfire
 pysrt
 bert-extractive-summarizer~=0.10.1
+flask~=2.2.2
+flask-cors~=3.0.10 
