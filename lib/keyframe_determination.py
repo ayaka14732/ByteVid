@@ -28,6 +28,7 @@ def match_summaries_with_timestamps(summaries: list[str], subs: list[Sub]) -> li
             if summary.startswith(sub.text):
                 res.append(average(sub.start, sub.end))
                 done = True
+                break
         if not done:
             res.append(None)
     return res
