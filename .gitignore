@@ -1,6 +1,6 @@
 __pycache__
 /venv
-/test
+/testdir
 *.mp4
 *.png
 *.pt

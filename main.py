@@ -9,12 +9,13 @@ from lib.slides_detection import extract_slides
 
 if __name__ == '__main__':
     work_dir = 'testdir'
-    language = None
+    language_src = None
+    language_dst = 'zh-Hant'
 
     filename_preprocessed = speedup_1_6x_and_excerpt_first_30min(work_dir)
-    transcribe(work_dir, filename_preprocessed, language=language)
+    transcribe(work_dir, filename_preprocessed, language=language_src)
     article = transcript_to_article(work_dir)
-    article_translated = translate(article)
+    article_translated = translate(article, src=language_src, dst=language_dst)
     keyphrases = extract_keyphrase(article)
     summaries = summarise(article)
     keyframe_paths = determine_keyframes(work_dir, summaries)
