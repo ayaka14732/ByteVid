@@ -1,7 +1,8 @@
 # ByteVid
 
-The ByteVid project consists of several other repositories:
+The ByteVid project is made up of a number of repositories. Apart from this repository, here are the other repositories that you might be also interested in:
 
+- [yolov7-slides-extraction](https://github.com/ztjhz/yolov7-slides-extraction)
 - [ByteVidFrontend](https://github.com/xJQx/ByteVidFrontend)
 - [ByteVidExtension](https://github.com/ztjhz/ByteVidExtension)
 
