@@ -79,6 +79,8 @@ def translate_chunk(chunk: str, src: str, dst: str) -> list[str]:
     return results
 
 def translate(article: str, src: Optional[str]=None, dst: str='zh-Hans') -> str:
+    if not article:
+        return ''
     if src == None:
         src = 'auto'
     if dst == src:

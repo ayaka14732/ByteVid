@@ -7,7 +7,7 @@ from typing import Optional
 
 Sub = namedtuple('Sub', ('start', 'end', 'text'))
 
-def transcript_to_article(dir_in) -> str:
+def transcript_to_article(dir_in: str) -> list[Sub]:
     srt_file = glob(os.path.join(dir_in, '*.srt'))[0]
     subs = read_sub(srt_file)
 
@@ -15,13 +15,12 @@ def transcript_to_article(dir_in) -> str:
     for sub in subs:
         sub_new = Sub(sub.start.ordinal, sub.end.ordinal, sub.text)
         subs_new.append(sub_new)
-    assert subs_new, 'Subtitle file should not be empty'
     return subs_new
 
 def average(a: int, b: int) -> int:
     return (a + b) // 2
 
-def match_summaries_with_timestamps(summaries, subs) -> list[Optional[int]]:
+def match_summaries_with_timestamps(summaries: list[str], subs: list[Sub]) -> list[Optional[int]]:
     res = []
     for summary in summaries:
         done = False
@@ -51,8 +50,9 @@ def timestamps_to_images(video_path: str, dir_out: str, timestamps: list[Optiona
     return res
 
 def determine_keyframes(work_dir: str, summaries: list[str]) -> list[Optional[str]]:
-    video_path = os.path.join(work_dir, 'preprocessed.mp4')
+    video_file_orig = glob(os.path.join(work_dir, 'video.*'))[0]
+    video_file = video_file_orig.replace('video.', 'preprocessed.')
     subs = transcript_to_article(work_dir)
     keyframe_timestamps = match_summaries_with_timestamps(summaries, subs)
-    keyframe_paths = timestamps_to_images(video_path, work_dir, keyframe_timestamps)
+    keyframe_paths = timestamps_to_images(video_file, work_dir, keyframe_timestamps)
     return keyframe_paths
