@@ -1,4 +1,9 @@
-# mumbling-monitor
+# ByteVid
+
+The ByteVid project consists of several other repositories:
+
+- [ByteVidFrontend](https://github.com/xJQx/ByteVidFrontend)
+- [ByteVidExtension](https://github.com/ztjhz/ByteVidExtension)
 
 ## Prerequisites
 
