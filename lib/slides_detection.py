@@ -8,7 +8,7 @@ from typing import Optional
 
 from models.experimental import attempt_load
 from utils.datasets import LoadImages
-from utils.general import non_max_suppression, scale_coords, xyxy2xywh, set_logging
+from utils.general import non_max_suppression, scale_coords, xyxy2xywh
 from utils.torch_utils import select_device, TracedModel
 
 weights_path = 'best.pt'
@@ -16,11 +16,11 @@ device = select_device('0' if torch.cuda.is_available() else 'cpu')
 
 imgsz = 640
 
-set_logging()
 half = device.type != 'cpu'  # half precision only supported on CUDA
 model = attempt_load(weights=[weights_path], map_location=device)  # load FP32 model
 model = TracedModel(model, device, imgsz)
-model.half()  # to FP16
+if half:
+    model.half()  # to FP16
 stride = int(model.stride.max())  # model stride
 
 def load_img_for_model(img_path):
@@ -29,7 +29,6 @@ def load_img_for_model(img_path):
     path, img, im0s, vid_cap = next(iter(dataset))
 
     img = torch.from_numpy(img).to(device)
-    half = device.type != 'cpu'
     img = img.half() if half else img.float()  # uint8 to fp16/32
     img /= 255.0  # 0 - 255 to 0.0 - 1.0
     if img.ndimension() == 3:
@@ -37,7 +36,7 @@ def load_img_for_model(img_path):
 
     return img, im0s
 
-def detect(img, im0s):
+def detect(img, im0s) -> Optional[list]:
     with torch.no_grad():
         pred = model(img, augment=False)[0]
         pred = non_max_suppression(pred, 0.25, 0.45, classes=None, agnostic=False)
@@ -59,7 +58,10 @@ def detect(img, im0s):
                     result.append((cls, tuple(xywh)))
                 return result
 
-def select_largest(areas):
+def select_largest(areas: Optional[list]):
+    if not areas:
+        return None
+
     def key(area):
         _, (_, _, w, h) = area
         return w * h
@@ -81,14 +83,19 @@ def cut_img(img, area):
     img_cut = img[cut_y_0: cut_y_1, cut_x_0: cut_x_1]
     return img_cut
 
-def extract_slide(img_in: str, img_out: str) -> None:
+def extract_slide(img_in: str, img_out: str) -> bool:
     img_full = np.array(Image.open(img_in))
 
     img, im0s = load_img_for_model(img_in)
-    largest_area = select_largest(detect(img, im0s))
+    detected_areas = detect(img, im0s)
+    largest_area = select_largest(detected_areas)
 
-    img_cut = cut_img(img_full, largest_area)
-    plt.imsave(img_out, img_cut)
+    if largest_area:
+        img_cut = cut_img(img_full, largest_area)
+        plt.imsave(img_out, img_cut)
+        return True
+
+    return False
 
 def extract_slides(work_dir: str, keyframe_paths: list[Optional[str]]) -> list[Optional[str]]:
     res = []
@@ -99,8 +106,11 @@ def extract_slides(work_dir: str, keyframe_paths: list[Optional[str]]) -> list[O
             img_in = os.path.join(work_dir, keyframe_path)
             filename = f'extracted_{i}.png'
             img_out = os.path.join(work_dir, filename)
-            extract_slide(img_in, img_out)
-            res.append(filename)
+            is_extracted = extract_slide(img_in, img_out)
+            if not is_extracted:
+                res.append(None)
+            else:
+                res.append(filename)
     return res
 
 if __name__ == '__main__':
