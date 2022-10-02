@@ -1,0 +1,6 @@
+__pycache__
+/venv
+/test
+*.mp4
+*.png
+*.pt
