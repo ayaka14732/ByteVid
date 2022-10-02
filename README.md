@@ -12,7 +12,6 @@ python3.10 -m venv venv
 
 pip install -U pip
 pip install -U wheel
-pip install "jax[cpu]==0.3.20"
 pip install -r requirements.txt
 
 wget https://github.com/ztjhz/yolov7-slides-extraction/releases/download/v1.0/best.pt

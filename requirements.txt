@@ -3,5 +3,4 @@ git+https://github.com/ztjhz/yolov7-slides-extraction.git
 blingfire
 pysrt
 deepl
-jax==0.3.20
 bert-extractive-summarizer~=0.10.1
