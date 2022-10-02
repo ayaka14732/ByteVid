@@ -34,7 +34,7 @@ choco install ffmpeg
 scoop install ffmpeg
 ```
 
-## Deploy
+## Develop
 
 ```sh
 ## create an virtual environment
@@ -55,4 +55,10 @@ export BAIDU_APP_KEY=_BAIDU_APP_KEY
 
 ## start the server
 flask --app app run
+```
+
+## Deploy
+
+```sh
+waitress-serve --host 127.0.0.1 --port 31346 app:app
 ```
