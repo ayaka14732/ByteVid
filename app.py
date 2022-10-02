@@ -29,7 +29,7 @@ app.config['work_dir'] = VIDEO_FOLDER
 if not os.path.exists(app.config["work_dir"]):
     os.mkdir(app.config["work_dir"])
 
-executor = ThreadPoolExecutor(50)
+executor = ThreadPoolExecutor(4)
 
 # initialise database
 conn = sqlite3.connect('database.db')
