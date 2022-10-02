@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 from typing import Optional
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -10,7 +9,7 @@ import sqlite3
 from uuid import uuid4
 from glob import glob
 
-from lib.video_preprocessing import speedup_1_6x_and_excerpt_first_30min
+from lib.video_preprocessing import speedup_1_6x
 from lib.transcription import transcribe
 from lib.transcript_postprocessing import transcript_to_article
 from lib.translation import translate
@@ -191,7 +190,7 @@ def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
         print(f"Folder {uuid} not found!")
         raise OSError(f"Folder {uuid} not found!")
 
-    filename_preprocessed = speedup_1_6x_and_excerpt_first_30min(work_dir)
+    filename_preprocessed = speedup_1_6x(work_dir)
 
     cur.execute("UPDATE results set status = ? WHERE uuid = ?", (1, uuid))
     conn.commit()
