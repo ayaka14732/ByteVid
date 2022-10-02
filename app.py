@@ -115,7 +115,7 @@ def video():
 
         print(video_type, video_language, translate_language)
 
-        if not video_type or not video_language or not translate_language:
+        if not video_type or video_language is None or translate_language is None:
             return "Incomplete form!", 400
 
         curr_uuid = str(uuid4())
@@ -174,6 +174,11 @@ def download_youtube_video(url: str, uuid: str) -> None:
 
 def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
           language_dst: str) -> None:
+    if not language_src:
+        language_src = None
+    if not language_dst:
+        language_dst = None
+
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
 
@@ -242,9 +247,10 @@ def begin(uuid: str, video_type: str, url: Optional[str], language_src: str,
         conn.commit()
         print("Key slides extracted")
 
-        article_translated = translate(article,
-                                       src=language_src,
-                                       dst=language_dst)
+        if language_dst is None:
+            article_translated = ''
+        else:
+            article_translated = translate(article, src=language_src, dst=language_dst)
 
         cur.execute(
             "UPDATE results set status = ?, translated = ? WHERE uuid = ?",
