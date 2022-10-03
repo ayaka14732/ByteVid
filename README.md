@@ -68,3 +68,34 @@ flask --app app run
 ```sh
 waitress-serve --host 127.0.0.1 --port 31346 app:app
 ```
+
+## How we built it
+
+### Frontend
+
+- React.js
+- Tailwind CSS
+- Deploy on GitHub pages
+
+### Backend
+
+- Flask server
+- Deploy on a GPU machine
+- Relay to an Internet-facing VPS
+- Nginx reverse proxy
+- Cloudflare protection
+
+### Deep Learning
+
+- [Whisper](https://github.com/openai/whisper): SOTA speech recognition (Sep 2022)
+- [YOLOv7](https://github.com/WongKinYiu/yolov7): SOTA object detection (Jul 2022)
+- [KBIR-inspec](https://huggingface.co/ml6team/keyphrase-extraction-kbir-inspec): key phrase extraction (Dec 2021)
+- [Bert Extractive Summarizer](https://pypi.org/project/bert-extractive-summarizer/): summarisation (Jun 2019)
+- [BlingFire](https://github.com/microsoft/BlingFire): sentence extraction
+- [Baidu Translate API](https://api.fanyi.baidu.com/doc/21): translation
+
+### Tools
+
+- OpenCV
+- youtube-dl
+- ffmpeg
